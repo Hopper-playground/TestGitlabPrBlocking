@@ -20,7 +20,6 @@ ARTIFACT_RETENTION_DAYS="${ARTIFACT_RETENTION_DAYS:-7}"
 
 # Simulated GitHub environment (replace with actual values or set as env vars)
 REPO_ID="${REPO_ID:-123456}"
-ORG_ID="${ORG_ID:-654321}"
 REPO_URL="${REPO_URL:-https://github.com/example/repo}"
 BRANCH="${BRANCH:-main}"
 COMMIT_HASH="${COMMIT_HASH:-HEAD}"
@@ -33,7 +32,6 @@ SCAN_RESPONSE=$(curl -s -X POST "$API_URL/v1/pr-checks" \
   -H "Content-Type: application/json" \
   -d "{
     \"repoId\": \"$REPO_ID\",
-    \"orgId\": \"$ORG_ID\",
     \"repoUrl\": \"$REPO_URL\",
     \"branch\": \"$BRANCH\",
     \"commitHash\": \"$COMMIT_HASH\"
