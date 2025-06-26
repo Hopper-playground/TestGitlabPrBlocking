@@ -6,7 +6,6 @@ variables:
   BLOCK_ON_LOW: "false"
   MAX_POLLING_ATTEMPTS: "30"
   ARTIFACT_NAME: "hopper-security-scan-results"
-  ARTIFACT_RETENTION: "7 days"
 
 stages:
   - security
@@ -109,7 +108,7 @@ hopper_security_pr_check:
     name: "${ARTIFACT_NAME}"
     paths:
       - scan-results.json
-    expire_in: "${ARTIFACT_RETENTION}"
+    expire_in: "7 days" # Can be overwritten from the ci
   only:
     - merge_requests
   interruptible: true
