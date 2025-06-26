@@ -40,6 +40,13 @@ hopper_security_pr_check:
         }')
       SCAN_ID=$(echo "$SCAN_RESPONSE" | sed -E 's/.*"([0-9]+)".*/\1/')
       echo "  → Scan ID: ${SCAN_ID}"
+
+      if [[ -z "$SCAN_ID" ]]; then
+        echo "ERROR: failed to parse Scan ID from response:"
+        echo "  $SCAN_RESPONSE"
+        exit 1
+      fi
+      
       export SCAN_ID
 
     # Poll until done running
