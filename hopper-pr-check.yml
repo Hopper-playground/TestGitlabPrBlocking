@@ -24,6 +24,15 @@ hopper_security_pr_check:
   script:
     - apk add --no-cache curl jq
 
+    #Dump CI variables
+    - |
+      echo "CI_PROJECT_ID:              $CI_PROJECT_ID"
+      echo "CI_PROJECT_NAMESPACE:       $CI_PROJECT_NAMESPACE"
+      echo "CI_PROJECT_URL:             $CI_PROJECT_URL"
+      echo "CI_MERGE_REQUEST_SOURCE_BRANCH_NAME: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME"
+      echo "CI_COMMIT_SHA:              $CI_COMMIT_SHA"
+
+
     # Trigger the scan
     - |
       echo "Triggering Hopper Security PR check..."
@@ -46,7 +55,7 @@ hopper_security_pr_check:
         echo "  $SCAN_RESPONSE"
         exit 1
       fi
-      
+
       export SCAN_ID
 
     # Poll until done running
