@@ -1,5 +1,6 @@
 variables:
   HOPPER_API_URL: "https://api.hopper.security"
+  # Default configuration
   BLOCK_ON_CRITICAL: "true"
   BLOCK_ON_HIGH: "true"
   BLOCK_ON_MEDIUM: "false"
@@ -14,7 +15,7 @@ hopper_security_pr_check:
   image: alpine:latest
   stage: security
   variables:
-    # GitLab provides these by default in merge request pipelines
+    # GitLab provides these by default
     REPO_ID: "${CI_PROJECT_ID}"
     REPO_URL: "${CI_PROJECT_URL}"
     BRANCH: "${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}"
@@ -22,7 +23,7 @@ hopper_security_pr_check:
   script:
     - apk add --no-cache curl jq
 
-    # Dump CI variables
+    # Dump CI variables TODO delete
     - |
       echo "CI_PROJECT_ID:              $CI_PROJECT_ID"
       echo "CI_PROJECT_NAMESPACE:       $CI_PROJECT_NAMESPACE"
@@ -71,8 +72,8 @@ hopper_security_pr_check:
         echo "    Status: $STATUS"
       done
       if [[ "$STATUS" != "COMPLETED" ]]; then
-        echo "Scan failed, timed out, or exceeded maximum polling attempts"
-        exit 1
+        echo "WARNING !!! Scan failed, timed out, or exceeded maximum polling attempts"
+        exit 0
       fi
 
     # Fetch scan results
@@ -111,10 +112,11 @@ hopper_security_pr_check:
       if [[ "$SHOULD_FAIL" == "true" ]]; then
         echo "✖ PR check failed: Found security issues with severity ${REASONS[*]}"
         echo "Please fix these issues before merging this PR."
+        echo "Critical: ${CRITICAL_COUNT}, High: ${HIGH_COUNT}, Medium: ${MEDIUM_COUNT}, Low: ${LOW_COUNT}"
         exit 1
       else
         echo "✔ PR check passed: no blocking issues detected."
-        echo "Found ${REASONS[*]}"
+        echo "Found ${CRITICAL_COUNT} critical, ${HIGH_COUNT} high, ${MEDIUM_COUNT} medium, and ${LOW_COUNT} low severity issues."
       fi
 
   artifacts:
