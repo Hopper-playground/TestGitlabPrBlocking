@@ -35,7 +35,7 @@ hopper_security_pr_check:
 
     # Trigger the scan
     - |
-      echo "Triggering Hopper Security PR check..."
+      echo "Triggering Hopper Security PR check"
       SCAN_RESPONSE=$(curl -s -X POST \
         "${HOPPER_API_URL}/v1/pr-checks" \
         -H "Authorization: Bearer ${HOPPER_API_TOKEN}" \
