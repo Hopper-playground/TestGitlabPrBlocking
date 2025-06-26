@@ -24,16 +24,20 @@ hopper_security_pr_check:
 
     # Resolve ORG_ID dynamically
     - |
-      ORG_ID=$(curl -s --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" "$CI_API_V4_URL/projects/$CI_PROJECT_ID" | jq -r '.namespace.id')
+      ORG_ID=$(curl -s \
+        --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
+        "$CI_API_V4_URL/projects/$CI_PROJECT_ID" \
+        | jq -r '.namespace.id')
       if [[ -z "$ORG_ID" ]]; then
-        echo "ERROR: could not determine ORG_ID"
-        exit 1
+        echo "✖ ERROR: could not determine numeric ORG_ID"; exit 1
       fi
+      echo "→ Resolved ORG_ID=$ORG_ID"
       export ORG_ID
 
     # Dump CI variables
     - |
       echo "CI_PROJECT_ID:              $CI_PROJECT_ID"
+      echo "ORG_ID:                     $ORG_ID"
       echo "CI_PROJECT_NAMESPACE:       $CI_PROJECT_NAMESPACE"
       echo "CI_PROJECT_URL:             $CI_PROJECT_URL"
       echo "CI_MERGE_REQUEST_SOURCE_BRANCH_NAME: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME"
