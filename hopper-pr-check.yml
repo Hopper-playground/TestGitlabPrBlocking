@@ -14,17 +14,24 @@ hopper_security_pr_check:
   image: alpine:latest
   stage: security
   variables:
-    # GitLab provides these by default in merge request pipelines:
-    # CI_PROJECT_ID, CI_PROJECT_NAMESPACE, CI_MERGE_REQUEST_IID, CI_COMMIT_SHA
+    # GitLab provides these by default in merge request pipelines
     REPO_ID: "${CI_PROJECT_ID}"
-    ORG_ID: "${CI_PROJECT_NAMESPACE}"
     REPO_URL: "${CI_PROJECT_URL}"
     BRANCH: "${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}"
     COMMIT_HASH: "${CI_COMMIT_SHA}"
   script:
     - apk add --no-cache curl jq
 
-    #Dump CI variables
+    # Resolve ORG_ID dynamically
+    - |
+      ORG_ID=$(curl -s --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" "$CI_API_V4_URL/projects/$CI_PROJECT_ID" | jq -r '.namespace.id')
+      if [[ -z "$ORG_ID" ]]; then
+        echo "ERROR: could not determine ORG_ID"
+        exit 1
+      fi
+      export ORG_ID
+
+    # Dump CI variables
     - |
       echo "CI_PROJECT_ID:              $CI_PROJECT_ID"
       echo "CI_PROJECT_NAMESPACE:       $CI_PROJECT_NAMESPACE"
