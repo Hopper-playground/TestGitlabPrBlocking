@@ -25,10 +25,10 @@ hopper_security_pr_check:
     # Resolve ORG_ID dynamically
     - |
       ORG_ID=$(curl -s \
-        --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
+        --header "JOB-TOKEN: $CI_JOB_TOKEN" \
         "$CI_API_V4_URL/projects/$CI_PROJECT_ID" \
-        | jq -r '.namespace.id')
-      if [[ -z "$ORG_ID" ]]; then
+      | jq -r '.namespace.id')
+      if [[ -z "$ORG_ID" || "$ORG_ID" == "null" ]]; then
         echo "✖ ERROR: could not determine numeric ORG_ID"; exit 1
       fi
       echo "→ Resolved ORG_ID=$ORG_ID"
