@@ -21,20 +21,15 @@ hopper_security_pr_check:
     BRANCH: "${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}"
     COMMIT_HASH: "${CI_COMMIT_SHA}"
   script:
-    - apk add --no-cache curl jq
+    - apk add --no-cache bash curl jq git
 
-    # Ensure the script is executable
-    - |
-      if [ -f "hopper-pr-check.sh" ]; then
-        chmod +x hopper-pr-check.sh
-      else
-        echo "Error: hopper-pr-check.sh script not found in the repository."
-        exit 2
-      fi
+    # Clone the GitHub repo containing hopper-pr-check.sh
+    - git clone --depth 1 https://github.com/Hopper-playground/TestPRBlocking.git hopper_tmp
+    - cd hopper_tmp
+    - chmod +x hopper-pr-check.sh
 
-    # Run the Hopper PR check script
+    # Export env vars expected by the script
     - |
-      # Set environment variables for the script
       export API_TOKEN="${HOPPER_API_TOKEN}"
       export BLOCK_ON_CRITICAL="${BLOCK_ON_CRITICAL}"
       export BLOCK_ON_HIGH="${BLOCK_ON_HIGH}"
@@ -44,14 +39,12 @@ hopper_security_pr_check:
       export UPLOAD_RESULTS="true"
       export ARTIFACT_NAME="${ARTIFACT_NAME}"
 
-      # Run the script and capture exit code
-      ./hopper-pr-check.sh
-      EXIT_CODE=$?
+    # Run the Hopper script and capture exit code
+    - ./hopper-pr-check.sh
+    - EXIT_CODE=$?
 
-      # Handle exit codes
-      # 0: Success - pass
-      # 1: Failure - fail
-      # 2: Error - pass
+    # Handle exit codes
+    - |
       if [ $EXIT_CODE -eq 1 ]; then
         echo "Scan completed but found blocking issues. Failing the job."
         exit 1
@@ -65,6 +58,6 @@ hopper_security_pr_check:
   artifacts:
     name: "${ARTIFACT_NAME}"
     paths:
-      - "*.json"  # Match any JSON file to ensure we capture the results
+      - "*.json"
     expire_in: "7 days" # Can be overwritten from the ci
     when: always
