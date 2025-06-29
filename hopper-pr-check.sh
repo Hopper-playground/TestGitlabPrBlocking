@@ -1,11 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Exit codes
+# 0: Success - scan completed, no blocking issues
+# 1: Failure - scan completed, blocking issues found
+# 2: Error - API token missing, scan didn't complete, etc.
+
 # Required input
 API_TOKEN="${API_TOKEN:-}"
 if [[ -z "$API_TOKEN" ]]; then
   echo "Error: API_TOKEN environment variable is required."
-  exit 1
+  exit 2
 fi
 
 # Optional inputs with defaults
@@ -57,13 +62,13 @@ done
 
 if [[ "$STATUS" != "COMPLETED" ]]; then
   echo "Error: Scan did not complete. Status: $STATUS"
-  exit 1
+  exit 2
 fi
 
 echo "Fetching scan results..."
 RESULTS=$(curl -s -X GET "$API_URL/v1/scans/$SCAN_ID" \
   -H "Authorization: Bearer $API_TOKEN")
-echo "$RESULTS" > scan-results.json
+echo "$RESULTS" > "${ARTIFACT_NAME}.json"
 
 ISSUE_COUNT=$(echo "$RESULTS" | jq '.projectScanIssues | length // 0')
 CRITICAL_COUNT=$(echo "$RESULTS" | jq '[.projectScanIssues[] | select(.vulnerability.cvss.severity == "CRITICAL")] | length // 0')
@@ -78,11 +83,17 @@ echo "- Medium: $MEDIUM_COUNT"
 echo "- Low: $LOW_COUNT"
 echo "- Total: $ISSUE_COUNT"
 
+# Export environment variables for all CI platforms
+export ISSUE_COUNT="${ISSUE_COUNT}"
+export CRITICAL_COUNT="${CRITICAL_COUNT}"
+export HIGH_COUNT="${HIGH_COUNT}"
+export MEDIUM_COUNT="${MEDIUM_COUNT}"
+export LOW_COUNT="${LOW_COUNT}"
+export SCAN_STATUS="${STATUS}"
+
 # Uploading artifact (manual, optional)
 if [[ "$UPLOAD_RESULTS" == "true" ]]; then
-  mkdir -p artifacts
-  mv scan-results.json "artifacts/$ARTIFACT_NAME.json"
-  echo "Results saved to artifacts/$ARTIFACT_NAME.json"
+  echo "Results saved to ${ARTIFACT_NAME}.json"
 fi
 
 # Blocking logic
@@ -111,4 +122,5 @@ if [[ "$SHOULD_BLOCK" == "true" ]]; then
   exit 1
 else
   echo "✅ PR check passed: No blocking security issues found."
+  exit 0
 fi
