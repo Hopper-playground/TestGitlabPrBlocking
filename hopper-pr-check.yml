@@ -86,23 +86,23 @@ hopper_security_pr_check:
 
     - |
       SHOULD_FAIL=false
-       REASONS=""
-       if [ "$BLOCK_ON_CRITICAL" = "true" ] && [ "$CRITICAL_COUNT" -gt 0 ]; then
-         SHOULD_FAIL=true
-         REASONS="critical"
-       fi
-       if [ "$BLOCK_ON_HIGH" = "true" ] && [ "$HIGH_COUNT" -gt 0 ]; then
-         SHOULD_FAIL=true
-         REASONS="$REASONS high"
-       fi
-       if [ "$BLOCK_ON_MEDIUM" = "true" ] && [ "$MEDIUM_COUNT" -gt 0 ]; then
-         SHOULD_FAIL=true
-         REASONS="$REASONS medium"
-       fi
-       if [ "$BLOCK_ON_LOW" = "true" ] && [ "$LOW_COUNT" -gt 0 ]; then
-         SHOULD_FAIL=true
-         REASONS="$REASONS low"
-       fi
+      REASONS=""
+      if [ "$BLOCK_ON_CRITICAL" = "true" ] && [ "$CRITICAL_COUNT" -gt 0 ]; then
+        SHOULD_FAIL=true
+        REASONS="critical"
+      fi
+      if [ "$BLOCK_ON_HIGH" = "true" ] && [ "$HIGH_COUNT" -gt 0 ]; then
+        SHOULD_FAIL=true
+        REASONS="$REASONS high"
+      fi
+      if [ "$BLOCK_ON_MEDIUM" = "true" ] && [ "$MEDIUM_COUNT" -gt 0 ]; then
+        SHOULD_FAIL=true
+        REASONS="$REASONS medium"
+      fi
+      if [ "$BLOCK_ON_LOW" = "true" ] && [ "$LOW_COUNT" -gt 0 ]; then
+        SHOULD_FAIL=true
+        REASONS="$REASONS low"
+      fi
 
       if [ "$SHOULD_FAIL" = "true" ]; then
         echo "✖ PR check failed: Found security issues with severity ${REASONS[*]}"
