@@ -105,9 +105,10 @@ hopper_security_pr_check:
       fi
 
       if [ "$SHOULD_FAIL" = "true" ]; then
-        printf "✖ PR check failed: Found security issues with severity ${REASONS[*]}"
-        printf "Please fix these issues before merging this PR."
-        printf "Critical: ${CRITICAL_COUNT}, High: ${HIGH_COUNT}, Medium: ${MEDIUM_COUNT}, Low: ${LOW_COUNT}"
+        echo "✖ PR check failed: Found security issues with severity\n${REASONS[*]}"
+        echo "Please fix these issues before merging this PR.\n"
+        echo "Critical: ${CRITICAL_COUNT}, High: ${HIGH_COUNT}, Medium: ${MEDIUM_COUNT}, Low: ${LOW_COUNT}\n"
+        sleep 1  # Give stdout time to flush
         exit 1
       else
         printf "✔ PR check passed: no blocking issues detected."
