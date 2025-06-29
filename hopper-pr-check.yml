@@ -119,6 +119,10 @@ hopper_security_pr_check:
     paths:
       - scan-results.json
     expire_in: "7 days" # Can be overwritten from the ci
-  only:
-    - merge_requests
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: always
+    - if: '$CI_PIPELINE_SOURCE == "parent_pipeline"'
+      when: always
+    - when: never
   interruptible: true
