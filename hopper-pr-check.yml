@@ -23,12 +23,13 @@ hopper_security_pr_check:
   script:
     - apk add --no-cache curl jq
 
-    # Download the script if not already present
+    # Ensure the script is executable
     - |
-      if [ ! -f "hopper-pr-check.sh" ]; then
-        echo "Downloading hopper-pr-check.sh script..."
-        curl -s -o hopper-pr-check.sh https://raw.githubusercontent.com/hopper-security/hopper-pr-check/main/hopper-pr-check.sh
+      if [ -f "hopper-pr-check.sh" ]; then
         chmod +x hopper-pr-check.sh
+      else
+        echo "Error: hopper-pr-check.sh script not found in the repository."
+        exit 2
       fi
 
     # Run the Hopper PR check script
@@ -64,6 +65,6 @@ hopper_security_pr_check:
   artifacts:
     name: "${ARTIFACT_NAME}"
     paths:
-      - ${ARTIFACT_NAME}.json
+      - "*.json"  # Match any JSON file to ensure we capture the results
     expire_in: "7 days" # Can be overwritten from the ci
     when: always
